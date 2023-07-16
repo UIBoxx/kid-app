@@ -1,32 +1,145 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:kidzworld/trace_and_draw_pages/signature_painter.dart';
 import 'package:kidzworld/utils/appbar.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:kidzworld/utils/data.dart';
 
 class LettersPage extends StatefulWidget {
-  const LettersPage({super.key});
+  const LettersPage({Key? key}) : super(key: key);
 
   @override
   _LettersPageState createState() => _LettersPageState();
 }
 
 class _LettersPageState extends State<LettersPage> {
-  String _selectedLetter = '';
-  final List<List<Offset>> _lines = [];
+  FlutterTts flutterTts = FlutterTts();
+  String _selectedLetter = 'A';
+  final Map<String, List<List<Offset>>> _drawnLines =
+      {}; // Map to store drawn lines for each letter
+  List letters = Data.alphabet;
+  int i = 0;
+  Timer? _timer;
+  int _remainingTime = 20;
+  bool _timerRunning = false;
 
-  List symbol = <String>['🍎','🏀','🐈','🐕','🐘','🐟','🐐','🐓','🍦','🏺','🪁','🦁','🐒','👃','🍊','🦜','👑','🌹','🚢','🚂','☔','🚌','⌚','🎹','🦬','🦓'];
-  List meaning = <String>['Apple','Ball','Cat','Dog','Elephant','Fish','Goat','Hen','Ice Cream','Jug','Kite','Lion','Monkey','Nose','Orange','Parrot','Queen','Rose','Ship','Train','Umbrella','Van','Watch','Xylophone','Yak','Zebra'];
-  int i =0;
-
+  int time=20;
 
   // Add a key for the CustomPaint widget
   Key _customPaintKey = UniqueKey();
+
+  List<List<Offset>> _lines = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _stopTimer();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_remainingTime > 0 && _timerRunning) {
+          _remainingTime--;
+        } else if (_remainingTime == 0) {
+          _remainingTime = time;
+          _saveDrawnLines(_selectedLetter,
+              _lines); // Save the drawn lines for the current letter
+          i = (i + 1) % letters.length;
+          _selectedLetter = letters[i][0];
+          _lines = _drawnLines[_selectedLetter] ??
+              []; // Retrieve the saved drawn lines for the next letter
+          flutterTts.speak(_selectedLetter);
+        }
+      });
+    });
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+  }
+
+  void _toggleTimer() {
+    setState(() {
+      _timerRunning = !_timerRunning;
+    });
+  }
+
+  void _saveDrawnLines(String letter, List<List<Offset>> lines) {
+    setState(() {
+      _drawnLines[letter] = lines;
+    });
+  }
+
+  void timer() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      int newTime = time;
+      return AlertDialog(
+        title: const Text('Update Time'),
+        content: TextField(
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            newTime = int.tryParse(value) ?? 0;
+          },
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: const Text('Update'),
+            onPressed: () {
+              setState(() {
+                time = newTime;
+                _remainingTime= newTime;
+              });
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.green.shade100,
-      appBar: const CustomAppBar(
-        title: 'Draw Alphabets',
+      appBar: CustomAppBarWithTimmer(
+        title:'Alphabets' , 
+        trailing: IconButton(
+          icon: _timerRunning ? const Icon(Icons.pause) : const Icon(Icons.play_arrow),
+          onPressed: () {
+            _toggleTimer();
+          },
+        ),
+        time: _remainingTime,
+        timer: timer,
+        isRunning: _timerRunning,
+        undo: () {
+          setState(() {
+            _lines = [];
+          });
+        },
+        refresh: () {
+          setState(() {
+            _lines.clear();
+            _drawnLines.clear();
+          });
+        },
       ),
       body: Column(
         children: [
@@ -44,8 +157,18 @@ class _LettersPageState extends State<LettersPage> {
                       width: 150,
                       child: Column(
                         children: [
-                          Text(symbol[i].toString(),style: const TextStyle(fontSize: 80),),
-                          Text(meaning[i],style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.amber.shade800),)
+                          Text(
+                            letters[i][2],
+                            style: const TextStyle(fontSize: 80),
+                          ),
+                          Text(
+                            letters[i][1],
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade800,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -60,16 +183,20 @@ class _LettersPageState extends State<LettersPage> {
                         Text(
                           _selectedLetter == '' ? 'A' : _selectedLetter,
                           style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.width*0.5,
-                              fontWeight: FontWeight.w300,
-                              color: Colors.green.shade100),
+                            fontSize: MediaQuery.of(context).size.width * 0.5,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.green.shade100,
+                          ),
                         ),
                         Text(
-                          _selectedLetter == '' ? 'a' : _selectedLetter.toLowerCase(),
-                           style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.width*0.5,
-                              fontWeight: FontWeight.w200,
-                              color: Colors.pink.shade100),
+                          _selectedLetter == ''
+                              ? 'a'
+                              : _selectedLetter.toLowerCase(),
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.5,
+                            fontWeight: FontWeight.w200,
+                            color: Colors.pink.shade100,
+                          ),
                         ),
                       ],
                     ),
@@ -109,7 +236,8 @@ class _LettersPageState extends State<LettersPage> {
                     onPanEnd: (DragEndDetails details) {
                       setState(() {
                         _lines.add([]);
-
+                        _saveDrawnLines(_selectedLetter,
+                            _lines); // Save the drawn lines for the selected letter
                         // Change the key of the CustomPaint widget to force a rebuild
                         _customPaintKey = UniqueKey();
                       });
@@ -134,40 +262,47 @@ class _LettersPageState extends State<LettersPage> {
                 mainAxisSpacing: 5.0,
                 crossAxisSpacing: 5.0,
                 children: List.generate(26, (index) {
+                  final letter = String.fromCharCode('A'.codeUnitAt(0) + index);
+                  final isLetterSelected = _selectedLetter == letter;
+                  final hasDrawnLines = _drawnLines.containsKey(letter) &&
+                      _drawnLines[letter]!
+                          .isNotEmpty; // Check if lines are not empty
+
                   return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedLetter =
-                            String.fromCharCode('A'.codeUnitAt(0) + index);
-                        i=index;
-                        _lines.clear();
-                        // print(i);
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: _selectedLetter ==
-                                String.fromCharCode('A'.codeUnitAt(0) + index)
-                            ? Colors.pink.shade400
-                            : Colors.green[300],
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                      child: Center(
-                        child: Text(
-                          String.fromCharCode('A'.codeUnitAt(0) + index),
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                            color: _selectedLetter ==
-                                    String.fromCharCode(
-                                        'A'.codeUnitAt(0) + index)
-                                ? Colors.white
-                                : Colors.grey.shade100,
+                      onTap: () async {
+                        setState(() {
+                          _selectedLetter = letter;
+                          i = index;
+                          _remainingTime = time;
+                          _lines = _drawnLines[letter] ?? [];
+                        });
+                        await flutterTts.setLanguage('en-US');
+                        await flutterTts.speak(_selectedLetter);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isLetterSelected
+                              ? Colors.pink.shade400
+                              : hasDrawnLines
+                                  ? Colors.green.shade400
+                                  : Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            letter,
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                              color: isLetterSelected
+                                  ? Colors.white
+                                  : hasDrawnLines
+                                      ? Colors.green.shade800
+                                      : Colors.grey.shade500,
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
+                      ));
                 }),
               ),
             ),
@@ -177,6 +312,3 @@ class _LettersPageState extends State<LettersPage> {
     );
   }
 }
-
-
-

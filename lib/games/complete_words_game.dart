@@ -1,11 +1,15 @@
 import 'dart:math';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kidzworld/helper/ads_helper.dart';
 import 'package:kidzworld/helper/dialogue.dart';
 import 'package:kidzworld/utils/appbar.dart';
 import 'package:kidzworld/utils/custom_choice.dart';
 import 'package:kidzworld/utils/data.dart';
+import 'package:kidzworld/utils/functions.dart';
+import 'package:kidzworld/utils/hive_db.dart';
 
 class WordsGamePage extends StatefulWidget {
   static const routeName = '/words-game-page';
@@ -24,12 +28,20 @@ class _WordsGamePageState extends State<WordsGamePage> {
   String _originalWord = '';
   String _originalEmo = '';
   int _missingIndex = 0;
-  int score = 0;
   final List<String> _choices = [];
   int qnCounterForAds = 0;
 
+  final _myScoreBox = Hive.box('home_work');
+  ScoreDB db = ScoreDB();
+  int score = 0;
+
   @override
   void initState() {
+    if (_myScoreBox.get("WORDS") == null) {
+      db.createInitialScore();
+    } else {
+      db.loadScore();
+    }
     super.initState();
     generateQuestion();
   }
@@ -59,7 +71,7 @@ class _WordsGamePageState extends State<WordsGamePage> {
         categoryWords = Data.birdsData;
       default:
         categoryWords = [
-          ['🎄', 'Tree']
+          ['assets/birds/sparrow.jpg', 'Tree']
         ];
         break;
     }
@@ -92,6 +104,8 @@ class _WordsGamePageState extends State<WordsGamePage> {
 
   void checkAnswer(String choice) {
     bool isCorrect = choice == _originalWord[_missingIndex];
+    AudioPlayer()
+        .play(AssetSource(isCorrect ? 'music/win.mp3' : 'music/loose.mp3'));
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -110,13 +124,15 @@ class _WordsGamePageState extends State<WordsGamePage> {
           if (isCorrect) {
             setState(() {
               generateQuestion();
-              score += 1;
+              db.wordsScore += 1;
               qnCounterForAds += 1;
             });
+            db.updateScore();
           } else {
             setState(() {
-              score = score > 0 ? score - 1 : 0;
+              db.wordsScore = db.wordsScore > 0 ? db.wordsScore - 1 : 0;
             });
+            db.updateScore();
           }
         }, isCorrect ? 'Next' : 'Retry',
             isCorrect ? Colors.green.shade50 : Colors.red.shade100);
@@ -131,21 +147,29 @@ class _WordsGamePageState extends State<WordsGamePage> {
       key: _scaffoldKey,
       appBar: CustomAppBar(
         title: 'Find Missing  Letter',
-        trailing: '🏆$score',
+        trailing: '🏆${db.wordsScore}',
+        alert: () => Functions.showAlertSnackbar(
+            context, 'Long press to reset score', Colors.red.shade400),
+        function: () {
+          setState(() {
+            db.wordsScore = 0;
+          });
+          Functions.showAlertSnackbar(
+              context, 'Score reset successful.', Colors.green.shade400);
+          db.updateScore();
+        },
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
             const Gap(100),
-            Card(
-              elevation: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(40),
-                child: Text(
-                  _originalEmo,
-                  style: const TextStyle(fontSize: 80.0),
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Image.asset(
+                _originalEmo,
+                width: 150,
+                fit: BoxFit.contain,
               ),
             ),
             const Gap(16),

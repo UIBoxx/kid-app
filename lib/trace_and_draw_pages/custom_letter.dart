@@ -14,6 +14,7 @@ class CustomLetterPage extends StatefulWidget {
 class _CustomLetterPageState extends State<CustomLetterPage> {
   String _selectedLetter = '';
   final List<List<Offset>> _lines = [];
+  
 
   // Add a key for the CustomPaint widget
   Key _customPaintKey = UniqueKey();

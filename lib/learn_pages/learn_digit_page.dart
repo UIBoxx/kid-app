@@ -5,6 +5,7 @@ import 'package:kidzworld/helper/ads_helper.dart';
 import 'package:kidzworld/helper/native_ad_controller.dart';
 import 'package:kidzworld/utils/appbar.dart';
 import 'package:number_to_words/number_to_words.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class LearnDigits extends StatelessWidget {
   LearnDigits({Key? key}) : super(key: key);
@@ -13,6 +14,7 @@ class LearnDigits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FlutterTts flutterTts = FlutterTts();
     List digits = [
       '🚗',
       '👵',
@@ -60,42 +62,51 @@ class LearnDigits extends StatelessWidget {
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${index + 1}',
-                        style: TextStyle(
-                          fontSize: 100,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.amber.shade800,
+            child: GestureDetector(
+              onTap: () async { 
+                await flutterTts.setLanguage('en-US');
+                await flutterTts.speak(
+                  NumberToWord().convert('en-in', index + 1).toUpperCase(),
+                
+                ); // Convert the specified text to speech
+              },
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            fontSize: 100,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amber.shade800,
+                          ),
                         ),
-                      ),
-                      Text(
-                        NumberToWord()
-                            .convert('en-in', index + 1)
-                            .toUpperCase(),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green.shade800,
+                        Text(
+                          NumberToWord()
+                              .convert('en-in', index + 1)
+                              .toUpperCase(),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade800,
+                          ),
                         ),
-                      ),
-                      Text(
-                        index < 20 ? '${digits[index]}' * (index + 1) : '',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 30,
+                        Text(
+                          index < 20 ? '${digits[index]}' * (index + 1) : '',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 30,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

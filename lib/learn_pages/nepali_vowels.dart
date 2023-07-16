@@ -14,6 +14,8 @@ class NepaliVowelsLearn extends StatelessWidget {
       color: Colors.cyan.shade400,
       title: 'Nepali Vowels',
       scaffoldBg: Colors.cyan.shade100,
+      speak: Data.nepaliVowels,
+      isHindi: true,
     );
   }
 }

@@ -25,7 +25,7 @@ class AboutPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(5),
                   child: const Image(
                     image: AssetImage('assets/icons/logo.png'),
                     width: 100,
@@ -36,17 +36,18 @@ class AboutPage extends StatelessWidget {
               child: Text(
                 'Learn with Fun',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold,
                   color: Colors.pink.shade800,
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Text(
-                'Learn to write and recognize letters and digits, and play fun logical games!',
-                style: TextStyle(fontSize: 18),
+                'Welcome to KidzWorld! \nOur app offers a fun and interactive way for kids to learn tracing, recognize letters, pronounce them, and explore math concepts like addition and subtraction. They can also discover various animals, birds, vehicles, flowers, and more. Additionally, our app features entertaining and logic-based games to enhance cognitive skills and critical thinking. \nJoin us now and embark on a captivating learning adventure!',
+                textAlign: TextAlign.justify,
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
               ),
             ),
             const Gap(20),
@@ -76,7 +77,7 @@ class AboutPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Copyright © 2023 Pro Tech',
+                'Copyright © 2023 ProWin',
                 style: TextStyle(fontSize: 16, color: Colors.pink.shade400),
               ),
             ),

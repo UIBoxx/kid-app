@@ -14,7 +14,7 @@ class AdHelper{
     
     InterstitialAd.load(
       // adUnitId: 'ca-app-pub-3940256099942544/1033173712', //sample
-      adUnitId: 'ca-app-pub-4520713668416571/4431326025',
+      adUnitId: 'ca-app-pub-4520713668416571/6300673401',
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
@@ -37,7 +37,7 @@ class AdHelper{
   static NativeAd loadNativeAd({required NativeAdController adController}) {
      return NativeAd(
         // adUnitId: 'ca-app-pub-3940256099942544/2247696110', //sample
-        adUnitId: 'ca-app-pub-4520713668416571/3002748182',
+        adUnitId: 'ca-app-pub-4520713668416571/4113493765',
         listener: NativeAdListener(
           onAdLoaded: (ad) {
             adController.adLoaded.value = true;

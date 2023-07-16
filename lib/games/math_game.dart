@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kidzworld/helper/ads_helper.dart';
 import 'package:kidzworld/helper/dialogue.dart';
 import 'package:kidzworld/utils/appbar.dart';
 import 'package:kidzworld/utils/custom_choice.dart';
 import 'dart:math';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:kidzworld/utils/functions.dart';
+import 'package:kidzworld/utils/hive_db.dart';
 
 class MathGame extends StatefulWidget {
   static const routeName = '/math-game-page';
@@ -23,11 +27,22 @@ class _MathGameState extends State<MathGame> {
   String _operation = '+';
   int _answer = 2;
   final List<int> _choices = [];
-  int _score = 0;
   int qnCounterForAds = 0;
+
+  final _myMathBox = Hive.box('home_work');
+
+  ScoreDB db = ScoreDB();
+
+  int mathScore = 0;
 
   @override
   void initState() {
+    if (_myMathBox.get("MATH") == null) {
+      db.createInitialScore();
+    } else {
+      db.loadScore();
+    }
+
     super.initState();
     generateQuestion();
   }
@@ -72,8 +87,12 @@ class _MathGameState extends State<MathGame> {
     _choices.shuffle();
   }
 
+
+
   void checkAnswer(int choice) {
     bool isCorrect = (choice == _answer);
+    AudioPlayer()
+        .play(AssetSource(isCorrect ? 'music/win.mp3' : 'music/loose.mp3'));
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -82,22 +101,26 @@ class _MathGameState extends State<MathGame> {
           isCorrect ? 'Congratulations' : 'oops',
           isCorrect ? 'Correct answer!' : 'Wrong answer, try again!',
           () {
-           qnCounterForAds == 10 ? AdHelper.showInterstitialAd(onComplete: () {
-              Navigator.of(context).pop();
-              setState(() {
-                qnCounterForAds = 0;
-              });
-            }):Navigator.of(context).pop();
+            qnCounterForAds == 10
+                ? AdHelper.showInterstitialAd(onComplete: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      qnCounterForAds = 0;
+                    });
+                  })
+                : Navigator.of(context).pop();
             if (isCorrect) {
               setState(() {
-                _score += 1;
+                db.mathScore += 1;
                 qnCounterForAds += 1;
                 generateQuestion();
               });
+              db.updateScore();
             } else {
               setState(() {
-                _score = _score > 0 ? _score - 1 : 0;
+                db.mathScore = db.mathScore > 0 ? db.mathScore - 1 : 0;
               });
+              db.updateScore();
             }
           },
           isCorrect ? 'Next' : 'Retry',
@@ -113,8 +136,17 @@ class _MathGameState extends State<MathGame> {
       backgroundColor: Colors.purple.shade50,
       appBar: CustomAppBar(
         title: 'Math game',
-        trailing: '🏆$_score',
+        trailing: '🏆${db.mathScore}',
+        alert: ()=>Functions.showAlertSnackbar(context,'Long press to reset score.',Colors.red.shade400),
+        function: () {
+          setState(() {
+            db.mathScore=0;
+          });
+          Functions.showAlertSnackbar(context,'Score reset successful.',Colors.green.shade400);
+          db.updateScore();
+        },
       ),
+
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Padding(
@@ -191,3 +223,4 @@ class _MathGameState extends State<MathGame> {
     );
   }
 }
+

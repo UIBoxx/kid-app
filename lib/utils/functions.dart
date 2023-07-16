@@ -2,6 +2,19 @@
 import 'package:flutter/material.dart';
 
 class Functions{
+
+
+  static void showAlertSnackbar(BuildContext context, String message, Color color) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: color,
+      content:  Text(message, textAlign: TextAlign.center,),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
+
+
    static Widget buildOptionContainer(BuildContext context, String label,
       String routeName, String icon, Color color) {
     return GestureDetector(
@@ -99,9 +112,4 @@ class Functions{
     );
   }
 
-  static showProgress(){
-    const Center(
-      child: CircularProgressIndicator(),
-    );
-  }
 }

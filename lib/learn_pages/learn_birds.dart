@@ -7,7 +7,7 @@ class MyBirds extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPictureCard(
+    return PictureCard(
       objects: Data.birdsData,
       title: 'Birds',
       scaffoldBg: Colors.brown.shade100,

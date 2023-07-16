@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:kidzworld/helper/ads_helper.dart';
@@ -69,6 +70,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame> {
   }
 
   void _handleItemTap(int index) {
+    
     if (_pickedItems[index] == 0 && !_gameOver) {
       setState(() {
         _pickedItems[index] = _items[index];
@@ -85,8 +87,8 @@ class _MemoryMatchGameState extends State<MemoryMatchGame> {
               if (_pickedItems.every((item) => item == -1)) {
                 _gameOver = true;
                 _timer?.cancel();
-
                 // Show congratulatory dialog box
+                AudioPlayer().play(AssetSource('music/winLevel.mp3'));
                 showDialog(
                   context: context,
                   builder: (context) {
@@ -127,6 +129,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame> {
                 });
               });
             }
+            AudioPlayer().play(AssetSource( _pickedItems[index] == -1 ?'music/win.mp3':'music/loose.mp3'));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content:
@@ -166,6 +169,7 @@ class _MemoryMatchGameState extends State<MemoryMatchGame> {
       '🛸',
       '🏅'
     ];
+
     return Scaffold(
       backgroundColor: Colors.teal.shade50,
       appBar: const CustomAppBar(title: 'Match the Cards'),
@@ -203,8 +207,9 @@ class _MemoryMatchGameState extends State<MemoryMatchGame> {
                             ? Text(
                                 '✔️',
                                 style: TextStyle(
-                                    fontSize: elementsCount < 27 ? 60 : 40,
-                                    color: Colors.amber),
+                                  fontSize: elementsCount < 27 ? 60 : 40,
+                                  color: Colors.amber,
+                                ),
                               ) // Show close icon for unmatched items
                             : Text(
                                 _pickedItems[index] == 1

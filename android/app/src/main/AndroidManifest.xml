@@ -32,8 +32,13 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-4520713668416571~9324560054"/>
+            android:value="ca-app-pub-4520713668416571~1033719061"/>
     </application>
     <!-- For apps targeting Android 13 or higher & IMA SDK version 3.24.0 or lower -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <queries>  
+        <intent>  
+            <action android:name="android.intent.action.TTS_SERVICE" />  
+        </intent>  
+    </queries>
 </manifest>

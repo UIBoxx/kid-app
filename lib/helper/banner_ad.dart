@@ -20,7 +20,7 @@ class _BannerAdsState extends State<BannerAds> {
 
   late BannerAd bannerAd;
   bool isAdLoaded = false;
-  var adUnit= "ca-app-pub-4520713668416571/1881238200";
+  var adUnit= "ca-app-pub-4520713668416571/9198299489";
   // var adUnit= 'ca-app-pub-3940256099942544/6300978111'; //sample
   
   initBannerAd(){

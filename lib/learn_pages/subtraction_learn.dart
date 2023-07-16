@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:gap/gap.dart';
 import 'package:kidzworld/utils/appbar.dart';
 
@@ -8,6 +9,8 @@ class LearnSubtraction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FlutterTts flutterTts = FlutterTts();
+    
     List<String> emo = ['🍔', '🎄', '🏀', '🤖', '🎁', '🎻', '🍎', '🚕'];
     TextStyle myStyle = TextStyle(
       fontSize: 30,
@@ -37,53 +40,59 @@ class LearnSubtraction extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Card(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
-                height: 250,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('$number1 - $number2', style: myStyle),
-                          Text(
-                            '= ${number1 - number2}',
-                            style: myStyle,
-                          ),
-                        ],
+            child: GestureDetector(
+              onTap: ()async{
+                await flutterTts.setLanguage('en-US');
+                await flutterTts.speak('{$number1 minus $number2 = ${number1 - number2}}');
+              },
+              child: Card(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  height: 250,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('$number1 - $number2', style: myStyle),
+                            Text(
+                              '= ${number1 - number2}',
+                              style: myStyle,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            emo[i] * number1,
-                            style: myEmo,
-                            textAlign: TextAlign.end,
-                          ),
-                          const Gap(10),
-                          Text(
-                            '- ${emo[i] * number2}',
-                            style: myEmo,
-                            textAlign: TextAlign.justify,
-                          ),
-                          const Gap(10),
-                          Text('||', style: myStyle),
-                          const Gap(10),
-                          Text(
-                            emo[i] * (number1 - number2),
-                            style: myEmo,
-                          ),
-                        ],
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              emo[i] * number1,
+                              style: myEmo,
+                              textAlign: TextAlign.end,
+                            ),
+                            const Gap(10),
+                            Text(
+                              '- ${emo[i] * number2}',
+                              style: myEmo,
+                              textAlign: TextAlign.justify,
+                            ),
+                            const Gap(10),
+                            Text('||', style: myStyle),
+                            const Gap(10),
+                            Text(
+                              emo[i] * (number1 - number2),
+                              style: myEmo,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

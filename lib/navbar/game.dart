@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
+import 'package:kidzworld/helper/banner_ad.dart';
 import 'package:kidzworld/helper/head_lines.dart';
 import 'package:kidzworld/utils/functions.dart';
 
@@ -15,7 +16,11 @@ class MyGame extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Gap(100),
+          const Gap(50),
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: const BannerAds()),
+          const Gap(20),
          HeadLines.headLine(title: 'Play'),
           SizedBox(
             height: 350,
